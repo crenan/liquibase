@@ -86,7 +86,12 @@
 
     </changeSet>
 
-    <changeSet id="defaultValueTest-1" author="nvoxland" dbms="!mysql,!derby,!mariadb">
+    <changeSet id="defaultValueTest-1" author="nvoxland">
+        <preConditions onFail="MARK_RAN">
+            <not><dbms type="derby"/></not>
+            <not><dbms type="mysql"/></not> <!-- @todo: fails on set default now() -->
+            <not><dbms type="mariadb"/></not>
+        </preConditions>
         <createTable tableName="defaultValueTest">
             <column name="id" type="int"/>
             <column name="intA" type="int"/>
@@ -737,7 +742,7 @@
         <sql>insert into default_val_computed (id) values (1);</sql>
     </changeSet>
 
-    <changeSet id="createTableWithDefault-checkConstraint" author="nvoxland" dbms="h2,oracle,db2,postgresql,mssql,!mysql"> <!-- not derby -->
+    <changeSet id="createTableWithDefault-checkConstraint" author="nvoxland" dbms="h2,oracle,db2,postgresql,mssql"> <!-- not derby -->
         <addDefaultValue tableName="default_val_computed" columnName="added_col" defaultValueComputed="CURRENT_TIMESTAMP()"/>
     </changeSet>
 

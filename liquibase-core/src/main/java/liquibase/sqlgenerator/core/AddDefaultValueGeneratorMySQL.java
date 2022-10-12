@@ -30,23 +30,23 @@ public class AddDefaultValueGeneratorMySQL extends AddDefaultValueGenerator {
             if (addDefaultValueStatement.getDefaultValue() instanceof DatabaseFunction && database.getDatabaseMajorVersion() < 8) {
                 errors.addError("This version of mysql does not support non-literal default values");
             }
-        }
-        catch (DatabaseException e){
-            Scope.getCurrentScope().getLog(getClass()).fine("Can't get default value");
+        } catch (DatabaseException e) {
+            Scope.getCurrentScope().getLog(getClass()).fine("Can't check database version: "+e.getMessage(), e);
         }
         return errors;
     }
+
     @Override
     public Sql[] generateSql(AddDefaultValueStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         Object defaultValue = statement.getDefaultValue();
         String finalDefaultValue;
         if (defaultValue instanceof DatabaseFunction) {
-            finalDefaultValue = "("+defaultValue+")";
+            finalDefaultValue = "(" + defaultValue + ")";
             if (finalDefaultValue.startsWith("((")) {
                 finalDefaultValue = defaultValue.toString();
             }
         } else {
-            finalDefaultValue =  DataTypeFactory.getInstance().fromObject(defaultValue, database).objectToSql(defaultValue, database);
+            finalDefaultValue = DataTypeFactory.getInstance().fromObject(defaultValue, database).objectToSql(defaultValue, database);
         }
         return new Sql[]{
                 new UnparsedSql("ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ALTER " + database.escapeColumnName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName(), statement.getColumnName()) + " SET DEFAULT " + finalDefaultValue,
